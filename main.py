@@ -7,7 +7,6 @@ from keep_alive import keep_alive
 client = commands.Bot(command_prefix = '.') 
 status = ['building habits ₍ᐢ ̥ ̞ ̥ᐢ₎☆']
 
-
 cogs = ['cogs.tracker'] # add more cogs here
 
 config = {

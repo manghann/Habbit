@@ -1,7 +1,7 @@
 import discord
 import pyrebase
 from discord.ext import commands
-#from collections import OrderedDict 
+from collections import OrderedDict 
 
 config = {
   "apiKey": "AIzaSyDRRANWbc40FBWLETEsqGRjhY2CcX1Ydos",
@@ -21,18 +21,35 @@ class Habbit_Tracker(commands.Cog):
   async def add(self, ctx,*, task = None):
     global data, user_id, value, title
     user_id = ctx.message.author.id
-    #user = db.child(user_id).get()
 
     if task == None:
-      await ctx.send('No task created. Add one!')
+      no_task = discord.Embed(
+        title = '🗒️ To-do List', 
+        description = f'No task created. Add one!', 
+        colour = discord.Colour.orange())
+      await ctx.send(embed=no_task)
+ 
     else:
       try:
         OrderedDict = db.child(user_id).child("Count").get().val()
         count = OrderedDict["Count"]
-        data={("Task "+str(count+1)):task}
-        title="Task "+str(count+1)
-        db.child(user_id).child("Count").set({"Count":int(count)+1})
-      
+
+        if count >= 11: 
+          chill = discord.Embed(
+            title = '🗒️ To-do List', 
+            description = f'Chill~ 10 tasks at a time.', 
+            colour = discord.Colour.orange())
+          await ctx.send(embed=chill)
+          db.child(user_id).child("Count").set({"Count":1})      
+        else:  
+          data={("Task "+str(count)):task}
+          title="Task "+str(count)
+          added = discord.Embed(
+            title = '🗒️ To-do List', 
+            description = f'Task added to list! ꉂ₍ᐢ﹘ܫ﹘ᐢ₎', 
+            colour = discord.Colour.orange())
+          await ctx.send(embed=added)
+          db.child(user_id).child("Count").set({"Count":int(count)+1})
       except:
         data={"Task 1": task}
         points={"Points": 0}
@@ -40,75 +57,108 @@ class Habbit_Tracker(commands.Cog):
         title = "Task 1"
         db.child(str(user_id)).child("Points").set(points)
         db.child(str(user_id)).child("Count").set(count)
-    db.child(str(user_id)).child(title).set(data)
-    #await ctx.send(data)
-    await ctx.send('Task added to list! ꉂ₍ᐢ﹘ܫ﹘ᐢ₎')
+      db.child(str(user_id)).child(title).set(data)
+    
 
   @commands.command()
   async def show(self, ctx):
     user_id = ctx.message.author.id
     entries = db.child(user_id).get().val()
-    OrderedDict=db.child(user_id).child("Count").get().val()
+    OrderedDict = db.child(user_id).child("Count").get().val()
     count = OrderedDict["Count"]
 
     try:
-        await ctx.send('TO-DO List:')
+        show_tasks = discord.Embed(
+          title = '🗒️ To-do List', 
+          description = f'', 
+          colour = discord.Colour.orange())
+        await ctx.send(embed = show_tasks) 
+
         for entry in entries:
             if (entry != "Count") and (entry != "Points"):
-            #if (entry == "Count"):
                 OrderedDict=db.child(user_id).child(entry).get().val()
                 await ctx.send(entry+": "+OrderedDict[entry])
+                #print(entry)
+                #print(OrderedDict[entry])
     except:
-        await ctx.send("No More Tasks! Here's a 🥕 for you!")
+        await ctx.send('No More Tasks! 🥕')
 
   @commands.command()
-  async def finish(self, ctx, task):
+  async def finish(self, ctx,*, task = None):
       user_id = ctx.message.author.id
       OrderedDict=db.child(user_id).child("Points").get().val()
       points = OrderedDict["Points"]
-     
-      # need to have an option to finish ALL pending tasks  
-          
-      if task == "All":
-        await ctx.send("All tasks removed. charrr")
-        db.child(user_id).child("Task " + str(task)).remove()
-        # count finished tasks
-        # add total points here
+      
+      no_task = discord.Embed(
+        title = '🗒️ To-do List', 
+        description = f'No task found.', 
+        colour = discord.Colour.orange())
 
-      else:  
+      if task == None:
+        await ctx.send(embed=no_task)   
+      elif (task.isalpha()):
+        await ctx.send(embed=no_task)
+      # another condition for inputs unavailable
+      elif (len(task) > 2): # An option to finish multiple pending tasks
+        db.child(user_id).child("Task " + str(task)).remove()
+        pts = (len(task)-1)
+        db.child(user_id).child("Points").set({"Points" : int(points) + int(pts)})
+        OrderedDict=db.child(user_id).child("Points").get().val()
+        points = OrderedDict["Points"]
+        
+        task_done = discord.Embed(
+          title = '🗒️ To-do List', 
+          description = f'Tasks ' + task + " finished! + "+str(pts)+' !\n You now have ' + str(points) + '🥕!',
+          colour = discord.Colour.orange()) 
+        await ctx.send(embed=task_done)  
+    
+      else:
         try:
           db.child(user_id).child("Task " + str(task)).remove()
-          await ctx.send('Yay!~ Now on to the next task!')
-          db.child(user_id).child("Points").set({"Points" : int(points) + 1})
+          db.child(user_id).child("Points").set({"Points": int(points) + 1})
           OrderedDict=db.child(user_id).child("Points").get().val()
           points = OrderedDict["Points"]
-          await ctx.send("Task " + task + " finished! You have "+str(points)+' 🥕!')
+          task_done = discord.Embed(
+            title = '🗒️ To-do List', 
+            description = f'Task ' + task + ' finished! You now have '+str(points)+' 🥕!',
+            colour = discord.Colour.orange()) 
+          await ctx.send(embed=task_done)
+
         except:
-            await ctx.send("Task not found. Enter a task number, please!")
-      
-  @commands.command()
-  async def lead(self,ctx):
-    user_id = ctx.message.author.id  
-    await ctx.send('Here are the standings so far:')
-    clan = db.shallow().get().val()
-    
-    for usernum in clan:
-      a = db.child(usernum).child("Points").get().val()
-      b = str(ctx.bot.get_user(int(usernum)))
-      points = a["Points"]
-      if b == "None": b = "Someone in your server "
-      await ctx.send( str(b) + ": " + str(points) + " Points")
-    await ctx.send('Keep it up! ʚ₍⑅ᐢ‸ ̫ ‸ᐢ₎ɞ')
+          no_task = discord.Embed(
+            title = '🗒️ To-do List', 
+            description = f'No task found.', 
+            colour = discord.Colour.orange())
+          await ctx.send(embed=no_task)  
+
+  # ADD leaderboards
 
   @commands.command()
-  async def mypoints(self, ctx):
+  async def mypoints(self, ctx, user: discord.User = None):
     user_id = ctx.message.author.id
     OrderedDict = db.child(user_id).child("Points").get().val()
     points = OrderedDict["Points"]
+    
+    if user == None:
+      no_user = discord.Embed(title = '🥕 My Points', description = "Please provide a user to get info on!", colour = discord.Colour.orange())
+      await ctx.send(embed=no_user)
+
+    myPoints = discord.Embed(title = '🥕 My Points', description = "", colour = discord.Colour.orange())
+
     if points == 0:
-      await ctx.send("Oops! you have no points yet.")
+      myPoints.add_field(name = f'Hey {user.name},', value = f'Oops! you have no points yet.', inline = False)
+      await ctx.send(embed = myPoints)
+      #await ctx.send("Oops! you have no points yet.")
+    elif points >= 100:  
+      myPoints.add_field(name = f'Hey {user.name},', value = f'Good job~ A hundred 🥕 points!', inline = False)
+      await ctx.send(embed = myPoints)
+      #await ctx.send('Good job! A hundred 🥕 points!')
+      db.child(user_id).child("Points").set({"Points": 0}) # resets after reaching 100
+      points = OrderedDict["Points"]
     else: 
-      await ctx.send("Nice~ You have "+str(points)+" 🥕!")
+      myPoints.add_field(name = f'{user.name}', value = f'Nice~ You have '+str(points)+' 🥕!', inline = False)
+      await ctx.send(embed = myPoints)
+      #await ctx.send("Nice~ You have "+str(points)+" 🥕!")
 
   @commands.command(pass_context = True)
   @commands.cooldown(1, 60*60*12, commands.BucketType.user)
@@ -117,7 +167,7 @@ class Habbit_Tracker(commands.Cog):
     OrderedDict=db.child(user_id).child("Points").get().val()
     points = OrderedDict["Points"]
     db.child(user_id).child("Points").set({"Points" : int(points) + 3})
-    await ctx.send('Here is a gift... +3 🥕!')
+    await ctx.send('Here is a gift... 3 🥕!')
 
   @daily.error
   async def daily_error(self, ctx, error):
