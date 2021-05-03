@@ -40,15 +40,16 @@ class Habbit_Tracker(commands.Cog):
             description = f'Chill~ 10 tasks at a time.', 
             colour = discord.Colour.orange())
           chill.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)    
+          db.child(user_id).child("Count").set({"Count":1}) 
           await ctx.send(embed=chill)
-          db.child(user_id).child("Count").set({"Count":1})      
+               
         else:  
           data={("Task "+str(count)):task}
           title="Task "+str(count)
           added = discord.Embed(
-            title = '━━ 🗒️ To-do List ━━', 
-            description = f'Task added to list! ꉂ₍ᐢ﹘ܫ﹘ᐢ₎', 
-            colour = discord.Colour.orange())
+           title = '━━ 🗒️ To-do List ━━', 
+           description = f'Task added to list! ꉂ₍ᐢ﹘ܫ﹘ᐢ₎', 
+           colour = discord.Colour.orange())
           added.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)  
           await ctx.send(embed=added)
           db.child(user_id).child("Count").set({"Count":int(count)+1})
@@ -60,33 +61,34 @@ class Habbit_Tracker(commands.Cog):
         db.child(str(user_id)).child("Points").set(points)
         db.child(str(user_id)).child("Count").set(count)
       db.child(str(user_id)).child(title).set(data)
-      print(db.child(str(user_id)).child(title).set(data))
+      #print(db.child(str(user_id)).child(title).set(data))
     
 
   @commands.command()
   async def show(self, ctx):
     user_id = ctx.message.author.id
     entries = db.child(user_id).get().val()
+
     OrderedDict = db.child(user_id).child("Count").get().val()
     count = OrderedDict["Count"]
-
+    print(count)
     task_list = []
 
     try:
-      show_tasks = discord.Embed(title = '━━ 🗒️ To-do List ━━', description = f'', color=discord.Color.orange())
+      show_tasks = discord.Embed(title = '━━ 🗒️ To-do List ━━', description = f'You can add a task to your list by typing .add <task>!', color=discord.Color.orange())
       show_tasks.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
-      #await ctx.send(embed = show_tasks) 
+
       for entry in entries:
-            if (entry != "Count") and (entry != "Points"):
-              OrderedDict=db.child(user_id).child(entry).get().val()
-              task_list.append(entry)
-              show_tasks.add_field(name = entry , value = "⦾  "+OrderedDict[entry], inline = False)
-      await ctx.send(embed=show_tasks)
-      #print(task_list)           
+        if (entry != "Count") and (entry != "Points"):
+          OrderedDict=db.child(user_id).child(entry).get().val()
+          task_list.append(entry)
+          show_tasks.add_field(name = entry, value = "⦾  " + OrderedDict[entry], inline = False)
+      await ctx.send(embed = show_tasks)
+
     except:
         show_tasks = discord.Embed(title = '━━ 🗒️ To-do List ━━', description = f'', color=discord.Color.orange())
         show_tasks.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
-        show_tasks.add_field(name=f'No More Tasks! 🥕', value="You may create new ones using '.add' <task>!",inline=False)
+        show_tasks.add_field(name=f'No More Tasks! 🥕', value="You may create a new one using '.add' <task>!", inline = False)
         await ctx.send(embed=show_tasks)
 
   @commands.command()
@@ -106,25 +108,22 @@ class Habbit_Tracker(commands.Cog):
       elif (task.isalpha()):
         await ctx.send(embed=no_task)
       # another condition for inputs unavailable
-      elif (len(task) > 2): # An option to finish multiple pending tasks
+      #elif (len(task) > 2): # An option to finish multiple pending tasks (WIP)
         #dict_task = {"Task":task}
-        pts = (len(task)-1)
-        db.child(user_id).child("Points").set({"Points" : int(points) + int(pts)})
-        OrderedDict=db.child(user_id).child("Points").get().val()
-        points = OrderedDict["Points"]
+        #pts = (len(task)-1)
+        #db.child(user_id).child("Points").set({"Points" : int(points) + int(pts)})
+        #OrderedDict=db.child(user_id).child("Points").get().val()
+        #points = OrderedDict["Points"]
         
-        task_done = discord.Embed(
-          title = '━━ 🗒️ To-do List ━━', 
-          description = f'Tasks ' + task + " finished! + "+str(pts)+' !\n You now have ' + str(points) + '🥕!',
-          colour = discord.Colour.orange()) 
-        task_done.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)           
-        await ctx.send(embed=task_done)  
+        #task_done = discord.Embed(title = '━━ 🗒️ To-do List ━━', description = f'Tasks ' + task + " finished! + "+str(pts)+' !\n You now have ' + str(points) + '🥕!', colour = discord.Colour.orange()) 
+        #task_done.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)           
+        #await ctx.send(embed=task_done)  
     
       else:
           OrderedDict = db.child(user_id).child("Count").get().val()
           count = OrderedDict["Count"]
           print(count)
-
+          
           if (int(task) <= count): 
             db.child(user_id).child("Task " + str(task)).remove()
             db.child(user_id).child("Points").set({"Points": int(points) + 1})
@@ -139,7 +138,28 @@ class Habbit_Tracker(commands.Cog):
             await ctx.send(embed=no_task)  
 
   # ADD leaderboards
+  #@commands.command()
+  #async def leaderboard(self, ctx): # Displays leaderboard (top to bottom)
+  #  user_id=ctx.message.author.id
+           
+  #  lead = discord.Embed(title = '━━ 🏆 Leaderboard ━━',description = f'Here are the standings so far: ', color = discord.Colour.orange())
+  #  lead.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)    
+          
+  #  await ctx.send(embed=lead)
+  #  clan = db.shallow().get().val()
+    
+  #  for usernum in clan:
+  #    a = db.child(usernum).child("Points").get().val()
+  #    b = str(ctx.bot.get_useint((usernum)))
+  #    points = a["Points"]
+  #    if b == "None": b = "👤: "
+  #    await ctx.send(str(b) + str(points) + " Points")
+    
+  #  lead.add_field(name = "GG! Keep it up!", value = '\u200b', inline = False)
+  #  await ctx.send(embed=lead)
 
+  #---#  
+  
   @commands.command()
   async def mypoints(self, ctx, user: discord.User = None):
     user_id = ctx.message.author.id
