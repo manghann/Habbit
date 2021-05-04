@@ -6,11 +6,11 @@ from keep_alive import keep_alive
 import asyncio
 
 
-client = commands.Bot(command_prefix = '.', help_command=None) 
+client = commands.Bot(command_prefix = '*', help_command=None) 
 client.remove_command("help")
 status = ['building habits ₍ᐢ ̥ ̞ ̥ᐢ₎☆']
 
-cogs = ['cogs.tracker'] # add more cogs here
+cogs = ['cogs.tracker','cogs.music'] # add more cogs here
 
 config = {
   "apiKey": "AIzaSyDRRANWbc40FBWLETEsqGRjhY2CcX1Ydos",
@@ -33,16 +33,16 @@ async def on_ready():
   print('{0.user} is READY!'
   .format(client))       
  
-#--- Custom Help Page ---#
+#--- Custom Help Pages ---#
 @client.command()
 async def help(ctx):
-  page1 = discord.Embed(title = "Habbit | Help Information", dexcription = "Use .help for more info.", color = discord.Color.orange())
+  page1 = discord.Embed(title = "Habbit | Help Information", description = "Use .help for more info.", color = discord.Color.orange())
   page1.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
   page1.add_field(name = " Contents:", value = " 1. To-do List\n 2. Sched Reminder\n 3. Music Buddy\n 4. Pomodoro", inline = False)
   page1.add_field(name = " 📋 — To-do List\n⏰ — Sched Reminder\n🎶 — Music Buddy\n🍅 — Pomodoro\n🏆 — Leaderboard", value = '\u200b', inline = False)
   page1.set_footer(text="Main Page | Habbit is developed by: Hanna ({})".format(ctx.author.display_name))
 
-  page2 = discord.Embed(title="📋 — To-do List", description="Page 1", colour=discord.Colour.orange())
+  page2 = discord.Embed(title="📋 — To-do List", description="**To-do Commands**\n`*add` - Add a task to your list.\n`*show` - Display your To-do List.\n`*finish` - Complete and remove a task from your list.", colour=discord.Colour.orange())
   page2.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
   page2.set_footer(text="Help 1/5 | Reaction cooldown of 2 seconds •")
   

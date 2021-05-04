@@ -43,9 +43,9 @@ class Habbit_Tracker(commands.Cog):
           db.child(user_id).child("Count").set({"Count":1}) 
           await ctx.send(embed=chill)
                
-        else:  
+        else: 
           data={("Task "+str(count)):task}
-          title="Task "+str(count)
+          title="Task "+str(count) 
           added = discord.Embed(
            title = '━━ 🗒️ To-do List ━━', 
            description = f'Task added to list! ꉂ₍ᐢ﹘ܫ﹘ᐢ₎', 
@@ -62,7 +62,26 @@ class Habbit_Tracker(commands.Cog):
         db.child(str(user_id)).child("Count").set(count)
       db.child(str(user_id)).child(title).set(data)
       #print(db.child(str(user_id)).child(title).set(data))
-    
+
+  #---#
+  @commands.command()
+  async def edit(self, ctx,*, new_task = None, task = None):
+    global data, user_id, value, title
+    user_id = ctx.message.author.id    
+
+    if (task == None) or (new_task == None):
+      no_task = discord.Embed(
+        title = '━━ 🗒️ To-do List ━━', 
+        description = f'No task edited. Try `*edit <tasknumber> <newtask>`!', 
+        colour = discord.Colour.orange())
+      await ctx.send(embed=no_task)
+    else:
+      print("test")
+        #OrderedDict = db.child(user_id).child("Count").get().val()
+        #count = OrderedDict["Count"]
+
+
+
 
   @commands.command()
   async def show(self, ctx):
@@ -71,24 +90,22 @@ class Habbit_Tracker(commands.Cog):
 
     OrderedDict = db.child(user_id).child("Count").get().val()
     count = OrderedDict["Count"]
-    print(count)
+    #print(count)
     task_list = []
 
+    show_tasks = discord.Embed(title = '━━ 🗒️ To-do List ━━', description = f'You can add a task to your list by typing `*add <task>`!', color=discord.Color.orange())
+    show_tasks.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
     try:
-      show_tasks = discord.Embed(title = '━━ 🗒️ To-do List ━━', description = f'You can add a task to your list by typing .add <task>!', color=discord.Color.orange())
-      show_tasks.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
-
       for entry in entries:
         if (entry != "Count") and (entry != "Points"):
           OrderedDict=db.child(user_id).child(entry).get().val()
           task_list.append(entry)
-          show_tasks.add_field(name = entry, value = "⦾  " + OrderedDict[entry], inline = False)
+          print(entry)
+          show_tasks.add_field(name = entry, value = "•  " + OrderedDict[entry], inline = False)
       await ctx.send(embed = show_tasks)
 
     except:
-        show_tasks = discord.Embed(title = '━━ 🗒️ To-do List ━━', description = f'', color=discord.Color.orange())
-        show_tasks.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
-        show_tasks.add_field(name=f'No More Tasks! 🥕', value="You may create a new one using '.add' <task>!", inline = False)
+        show_tasks.add_field(name=f'No More Tasks! 🥕', value="You may create a new one using `.add' <task>!", inline = False)
         await ctx.send(embed=show_tasks)
 
   @commands.command()
@@ -100,7 +117,7 @@ class Habbit_Tracker(commands.Cog):
       no_task = discord.Embed(
         title = '━━ 🗒️ To-do List ━━', 
         description = f'No task found. Try a different number please~', 
-        colour = discord.Colour.orange())
+        color = discord.Color.orange())
       no_task.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)  
 
       if task == None:
@@ -124,16 +141,25 @@ class Habbit_Tracker(commands.Cog):
           count = OrderedDict["Count"]
           print(count)
           
-          if (int(task) <= count): 
-            db.child(user_id).child("Task " + str(task)).remove()
-            db.child(user_id).child("Points").set({"Points": int(points) + 1})
-            OrderedDict=db.child(user_id).child("Points").get().val()
-            points = OrderedDict["Points"]
+          if (int(task) <= count) or (count == 1):
+            db.child(user_id).child("Task " +str(task)).remove()
+
+            if points >= 1:
+              username = ctx.author.display_name
+              GG = discord.Embed(title = 'Good job~  @'+ username +', ', description = f' A hundred 🥕 points! Enjoy this carrot cake!🥮', color = discord.Color.orange())
+              await ctx.send(embed = GG)
+              db.child(user_id).child("Points").set({"Points": 0}) # resets after reaching 100
+              points = OrderedDict["Points"]
+
+            else:
+              db.child(user_id).child("Points").set({"Points": int(points) + 1})
+              OrderedDict=db.child(user_id).child("Points").get().val()
+              points = OrderedDict["Points"]
           
             task_done = discord.Embed(title = '━━ 🗒️ To-do List ━━',description = f'Task ' + task + ' finished! You now have '+str(points)+' 🥕!', colour = discord.Colour.orange())
             task_done.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)    
-          
             await ctx.send(embed=task_done)
+
           else:       
             await ctx.send(embed=no_task)  
 
@@ -194,7 +220,7 @@ class Habbit_Tracker(commands.Cog):
     OrderedDict=db.child(user_id).child("Points").get().val()
     points = OrderedDict["Points"]
     db.child(user_id).child("Points").set({"Points" : int(points) + 3})
-    daily = discord.Embed(title = '🥕 Daily Points', description = "Let's kick off your day~ Here is a gift... 3 🥕!", colour = discord.Colour.orange())
+    daily = discord.Embed(title = '🥕 Daily Points', description = "Let's kick off your day~ Here is a gift... `3` 🥕!", colour = discord.Colour.orange())
     await ctx.send(embed=daily)
 
   @daily.error
@@ -202,7 +228,7 @@ class Habbit_Tracker(commands.Cog):
     if isinstance(error, commands.CommandOnCooldown):
         daily_error = discord.Embed(title = '🥕 Daily Points', description = '', colour = discord.Colour.orange())         
         msg = 'This command is ratelimited, please try again after 12 hours!'.format(error.retry_after)              
-        daily_error.add_field(name = f'️Did you just try and get extra points? ₍ᐢ｡ܫ｡ᐢ₎', value = f'Oopsie! '+msg +' !', inline = False)
+        daily_error.add_field(name = f'️Did you just try and get extra points? ₍ᐢ｡ܫ｡ᐢ₎', value = f'*Oopsie!* '+msg +' !', inline = False)
         await ctx.send(embed = daily_error)
         #await ctx.send(msg)
     else:
