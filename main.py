@@ -10,7 +10,7 @@ client = commands.Bot(command_prefix = '*', help_command=None)
 client.remove_command("help")
 status = ['building habits ₍ᐢ ̥ ̞ ̥ᐢ₎☆']
 
-cogs = ['cogs.tracker','cogs.music'] # add more cogs here
+cogs = ['cogs.tracker','cogs.music','cogs.pomodoro'] # add more cogs here
 
 config = {
   "apiKey": "AIzaSyDRRANWbc40FBWLETEsqGRjhY2CcX1Ydos",
@@ -28,10 +28,12 @@ for cog in cogs:
   except Exception as e:
     print(f'Unable to load cog {cog}: {str(e)}')  
 
+
 @client.event
 async def on_ready():
   print('{0.user} is READY!'
-  .format(client))       
+  .format(client))
+     
  
 #--- Custom Help Pages ---#
 @client.command()
@@ -40,9 +42,9 @@ async def help(ctx):
   page1.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
   page1.add_field(name = " Contents:", value = " 1. To-do List\n 2. Sched Reminder\n 3. Music Buddy\n 4. Pomodoro", inline = False)
   page1.add_field(name = " 📋 — To-do List\n⏰ — Sched Reminder\n🎶 — Music Buddy\n🍅 — Pomodoro\n🏆 — Leaderboard", value = '\u200b', inline = False)
-  page1.set_footer(text="Main Page | Habbit is developed by: Hanna ({})".format(ctx.author.display_name))
+  page1.set_footer(text="Main Page | Habbit is created by: Hanna Mangampo (manghann_#0747) ☁️")
 
-  page2 = discord.Embed(title="📋 — To-do List", description="**To-do Commands**\n`*add` - Add a task to your list.\n`*show` - Display your To-do List.\n`*finish` - Complete and remove a task from your list.", colour=discord.Colour.orange())
+  page2 = discord.Embed(title="📋 — To-do List", description="**To-do Commands**\n`*add` - Add a task to your list.\n`*show` - Display your To-do List.\n`*finish` - Complete and remove a task from your list.\n`*mypoints` - Displays the total points of a user.", colour=discord.Colour.orange())
   page2.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
   page2.set_footer(text="Help 1/5 | Reaction cooldown of 2 seconds •")
   
@@ -50,11 +52,11 @@ async def help(ctx):
   page3.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
   page3.set_footer(text="Help 2/5 | Reaction cooldown of 2 seconds •")
 
-  page4 = discord.Embed(title="🎶 — Music Buddy", description="Page 3", colour=discord.Colour.orange())
+  page4 = discord.Embed(title="🎶 — Music Buddy", description="**Music Buddy Commands**\n`*summon` - Summons the bot to a voice channel.\n`*join`- Joins a voice channel.\n`*leave` - Clears the queue and leaves the voice channel.\n`*now` or `*playing`      - Displays the currently playing song.\n`*play` - Plays (and enqueues) a song.\n`*queue`- Shows music buddy's queue.\n**Other Commands:** `*pause` `*resume` `*stop` `*shuffle` `*remove` `*loop`\n ", colour=discord.Colour.orange())
   page4.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
   page4.set_footer(text="Help 3/5 | Reaction cooldown of 2 seconds •")
 
-  page5 = discord.Embed(title="🍅 — Pomodoro", description="Page 4", colour=discord.Colour.orange())
+  page5 = discord.Embed(title="🍅 — Pomodoro", description="**Pomodoro Timer Commands**\n`*pmdr-start` - Must be followed by **<work_time>** **<break_time>** to start.\n`*pmdr-stop`- Stops the ongoing timer.\n", colour=discord.Colour.orange())
   page5.set_author(name=ctx.author.display_name +"'s", url=" ", icon_url=ctx.author.avatar_url)
   page5.set_footer(text="Help 4/5 | Reaction cooldown of 2 seconds •")
 
