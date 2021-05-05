@@ -13,6 +13,7 @@ import discord
 import youtube_dl
 from async_timeout import timeout
 from discord.ext import commands
+import datetime
 
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -71,7 +72,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
         self.stream_url = data.get('url')
 
     def __str__(self):
-        return '`{0.title}` by `{0.uploader}`'.format(self)
+        return '**{0.title}** by **{0.uploader}**'.format(self)
 
     @classmethod
     async def create_source(cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None):
@@ -237,8 +238,6 @@ class VoiceState:
         self.next.set()
 
     def skip(self):
-        #self.skip_votes.clear()
-
         if self.is_playing:
             self.voice.stop()
 
@@ -345,6 +344,9 @@ class Music(commands.Cog):
             ctx.voice_state.skip()
 
 
+
+
+
     @commands.command(name='queue')        # Shows the player's queue. You can optionally specify the page to show. Each page contains 10 elements.
     async def _queue(self, ctx: commands.Context, *, page: int = 1):
         if len(ctx.voice_state.songs) == 0:
@@ -358,11 +360,12 @@ class Music(commands.Cog):
 
         queue = ''
         for i, song in enumerate(ctx.voice_state.songs[start:end], start=start):
-            queue += '`{0}.` [**{1.source.title}**]({1.source.url})\n'.format(i + 1, song)
+            queue += '`{0}.` [{1.source.title}]({1.source.url})\n'.format(i + 1, song)
 
-        embed = (discord.Embed(title='**Music Buddy** ━ *Queue  ♪*', description='__{} TRACKS:__\n\n{}'.format(len(ctx.voice_state.songs), queue), color=discord.Color.orange())
-                 .add_field(name='\u200b', value = '**Queue Options: ** `*shuffle`,  `*remove`, `*loop`') 
-                 .set_footer(text='Page {}/{}'.format(page, pages)))
+        embed = (discord.Embed(title='**Music Buddy** ━ *Queue  ♪*', description='**{} TRACKS** | *Up Next:* \n\n{}'.format(len(ctx.voice_state.songs), queue), color=discord.Color.orange())
+                 .add_field(name='\u200b', value = '**Queue Options: ** `*shuffle`,  `*remove`, `*loop`')
+                 .set_footer(text='Page {}/{}  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ '.format(page, pages)))
+                
         await ctx.send(embed=embed)
 
     @commands.command(name='shuffle')     # Shuffles the queue.
@@ -411,7 +414,7 @@ class Music(commands.Cog):
                 song = Song(source)
 
                 await ctx.voice_state.songs.put(song)
-                await ctx.send('🎶 Enqueued {}'.format(str(source)) + '  •')
+                await ctx.send('🎶  Enqueued {}'.format(str(source)) + '  •')
 
     @_join.before_invoke
     @_play.before_invoke
