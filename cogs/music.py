@@ -345,8 +345,6 @@ class Music(commands.Cog):
 
 
 
-
-
     @commands.command(name='queue')        # Shows the player's queue. You can optionally specify the page to show. Each page contains 10 elements.
     async def _queue(self, ctx: commands.Context, *, page: int = 1):
         if len(ctx.voice_state.songs) == 0:
@@ -360,11 +358,12 @@ class Music(commands.Cog):
 
         queue = ''
         for i, song in enumerate(ctx.voice_state.songs[start:end], start=start):
-            queue += '`{0}.` [{1.source.title}]({1.source.url})\n'.format(i + 1, song)
+            queue += '`{0}.` [{1.source.title}]({1.source.url}) - Requested by {1.source.requester}\n'.format(i + 1, song, song)
 
         embed = (discord.Embed(title='**Music Buddy** ━ *Queue  ♪*', description='**{} TRACKS** | *Up Next:* \n\n{}'.format(len(ctx.voice_state.songs), queue), color=discord.Color.orange())
                  .add_field(name='\u200b', value = '**Queue Options: ** `*shuffle`,  `*remove`, `*loop`')
-                 .set_footer(text='Page {}/{}  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ '.format(page, pages)))
+                 .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
+                 .set_footer(text='Page {}/{} '.format(page, pages)))
                 
         await ctx.send(embed=embed)
 
