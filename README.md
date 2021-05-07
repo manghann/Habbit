@@ -15,7 +15,7 @@
 
 #
 ### *Bot Info:*
-
+*  Invite Habbit to your server [here]: .
 
 #
 
