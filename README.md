@@ -1,3 +1,5 @@
+![Habbit.png]
+
 # 
 ### **[WORK IN PROGRESS]** 🌱
 #### A Discord bot to help you build habits with your community and earn carrot points with every task you complete. This bot also includes some extra tools to boost your productivity!
