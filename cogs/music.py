@@ -143,13 +143,14 @@ class Song:
 
     def create_embed(self):
         embed = (discord.Embed(title='**Music Buddy** ━ *Now Playing  ♪*',
-                               description='```css\n{0.source.title}\n```'.format(self),
+                               description='```css\n{0.source.title}                           \n```'.format(self),
                                color=discord.Color.orange())
-                 .add_field(name='Duration', value=self.source.duration)
-                 .add_field(name='Uploader', value='[{0.source.uploader}]({0.source.uploader_url})'.format(self))
-                 .add_field(name='Requested by', value=self.requester.mention)             
-                 .set_thumbnail(url=self.source.thumbnail))
-
+                 .add_field(name='Duration', value=self.source.duration, inline = True)
+                 .add_field(name='Source | Uploader', value='[URL]({0.source.url}) | [{0.source.uploader}]({0.source.uploader_url})'.format(self,self), inline = True)
+                 .add_field(name='Requested by', value=self.requester.mention, inline = True)    
+                 .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png"))        
+                 #.set_thumbnail(url=self.source.thumbnail))
+        embed.timestamp = datetime.datetime.utcnow()
         return embed
 
 
@@ -359,18 +360,19 @@ class Music(commands.Cog):
         queue = ''
         for i, song in enumerate(ctx.voice_state.songs[start:end], start=start):
             queue += '`{0}.` [{1.source.title}]({1.source.url}) - Requested by {1.source.requester}\n'.format(i + 1, song, song)
+        
+        await ctx.send(embed=ctx.voice_state.current.create_embed())  
 
         embed = (discord.Embed(title='**Music Buddy** ━ *Queue  ♪*', description='**{} TRACKS** | *Up Next:* \n\n{}'.format(len(ctx.voice_state.songs), queue), color=discord.Color.orange())
-                 .add_field(name='\u200b', value = '**Queue Options: ** `*shuffle`,  `*remove`, `*loop`')
-                 .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
-                 .set_footer(text='Page {}/{} '.format(page, pages)))
-                
+                 .add_field(name='\u200b', value = '**Queue Options: ** `*shuffle`,  `*remove`, `*loop`', inline = False)
+                 .set_footer(icon_url=ctx.author.avatar_url, text='Page {}/{} '.format(page, pages)))
+        embed.timestamp = datetime.datetime.utcnow()
         await ctx.send(embed=embed)
 
     @commands.command(name='shuffle')     # Shuffles the queue.
     async def _shuffle(self, ctx: commands.Context):
         if len(ctx.voice_state.songs) == 0:
-            await ctx.send('⚠️ **Empty queue!** Try `*play` to add a music.')
+            await ctx.send('⚠️ **Empty queue!** Use `*play` to add a music.')
 
         ctx.voice_state.songs.shuffle()
         await ctx.message.add_reaction('✅')
@@ -378,7 +380,7 @@ class Music(commands.Cog):
     @commands.command(name='remove')      # Removes a song from the queue at a given index.
     async def _remove(self, ctx: commands.Context, index: int):
         if len(ctx.voice_state.songs) == 0:
-            await ctx.send('⚠️ **Empty queue!** Try `*play` to add a music.')
+            await ctx.send('⚠️ **Empty queue!** Use `*play` to add a music.')
 
         ctx.voice_state.songs.remove(index - 1)
         await ctx.message.add_reaction('✅')

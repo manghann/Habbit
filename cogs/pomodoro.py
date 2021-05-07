@@ -4,6 +4,7 @@ import os
 import platform
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import datetime
+import time
 from src.utils import get_expire_time
 #from src.utils import sched
 
@@ -27,14 +28,18 @@ class Pomodoro(commands.Cog):
     if len(sched.get_jobs()) > 0:
         started = (discord.Embed(title="**Pomodoro Timer** ━ *Start*  🍅", description="Pomodoro timer is already working! Let's wait for it to finish. ₍ ᐢ. ̫ .ᐢ ₎و", color=discord.Color.orange())
                  .add_field(name='\u200b', value = 'You may also use `*pmdr-stop`.')
-                 .set_footer(text='━━━━━━━━━━━━━━━━━━━━━━━━━ '))
+                 .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
+                 .set_footer(icon_url=ctx.author.avatar_url, text = f'{ctx.author.display_name}'))
+        started.timestamp = datetime.datetime.utcnow()         
         await ctx.send(embed=started)
         return
 
     async def break_schedule(work_time, break_time):
         bt_end = (discord.Embed(title="**Pomodoro Timer** ━ *Work Time*  🍅", description=f"{ctx.author.mention} , break time's over! Let's get back to work! ₍ ᐢ. ̫ .ᐢ ₎و ️☁", color=discord.Color.orange())
                  .add_field(name='\u200b', value = 'You may opt use `*pmdr-stop` anytime.')
-                 .set_footer(text='━━━━━━━━━━━━━━━━━━━━━━━━━ '))        
+                 .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
+                 .set_footer(icon_url=ctx.author.avatar_url, text = f'{ctx.author.display_name}'))   
+        bt_end.timestamp = datetime.datetime.utcnow()              
         await ctx.send(embed=bt_end)        
         #await ctx.channel.send(f"{ctx.author.mention}```css\n[🔥Break time end!] Let's work :)```")
         work_expire_time = get_expire_time(work_time)
@@ -45,7 +50,9 @@ class Pomodoro(commands.Cog):
     async def work_schedule(work_time, break_time):
         wt_end = (discord.Embed(title="**Pomodoro Timer** ━ *Break Time*  🍅", description=f"{ctx.author.mention} , work time's over! Enjoy your break! ₍ ᐢ. ̫ .ᐢ ₎و ♡", color=discord.Color.orange())
                  .add_field(name='\u200b', value = 'You may opt use `*pmdr-stop` anytime.')
-                 .set_footer(text='━━━━━━━━━━━━━━━━━━━━━━━━━ '))        
+                 .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
+                 .set_footer(icon_url=ctx.author.avatar_url, text = f'{ctx.author.display_name}'))
+        wt_end.timestamp = datetime.datetime.utcnow()                 
         await ctx.send(embed=wt_end)            
         
         #await ctx.channel.send(f"{ctx.author.mention}```css\n[🏁Work time end!] Let's break :)```")
@@ -58,12 +65,12 @@ class Pomodoro(commands.Cog):
     sched.add_job(work_schedule, 'date', run_date=work_expire_time,
                   args=[work_time, break_time], misfire_grace_time=300)
 
+    timestamp=datetime.datetime.utcnow()
     start = (discord.Embed(title="**Pomodoro Timer** ━ *Start*  🍅", description=f"**Work Time:** `{work_time} mins` | **Break Time:** `{break_time} mins`", color=discord.Color.orange())
-            #.add_field(name='Work Time', value=f'`{work_time} mins`', inline = True)
-            #.add_field(name='Break Time', value=f'`{break_time} mins`', inline = True)
             .add_field(name='\u200b', value = 'You may opt use `*pmdr-stop` anytime.', inline=False)
-            .set_footer(text='━━━━━━━━━━━━━━━━━━━━━━━━━ '))
-
+            .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png") 
+            .set_footer(icon_url=ctx.author.avatar_url, text = f'{ctx.author.display_name}'))
+    start.timestamp = datetime.datetime.utcnow()
     await ctx.send(embed=start)
     #await ctx.channel.send(f"```css\n[Work {work_time}min, Break {break_time}min] Pomodoro Timer START.\n - stop command : !pmdr_stop```")
         
@@ -73,7 +80,9 @@ class Pomodoro(commands.Cog):
       sched.remove_all_jobs()
       stop = (discord.Embed(title="**Pomodoro Timer** ━ *Stop*  🍅", description=f"☒ Pomodoro timer is **stopped** by `{ctx.author.name}`!", color=discord.Color.orange())
                  .add_field(name='\u200b', value = 'If you want to set a timer again, use `*pmdr-start <work_mins> <break_mins>`.')
-                 .set_footer(text='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ '))
+                 .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
+                 .set_footer(icon_url=ctx.author.avatar_url, text = f'{ctx.author.display_name}'))
+      stop.timestamp = datetime.datetime.utcnow()           
       await ctx.send(embed=stop)
 
 
