@@ -1,23 +1,21 @@
-# Original concept by  Amjad Masad (@amasad on Replit)
-# https://replit.com/@amasad/Discordpy-Music-Bot
-# Reused and customized by Hanna Mangampo (github.com/manghann)
-
+""" Original concept by  Amjad Masad (@amasad on Replit)
+    https://replit.com/@amasad/Discordpy-Music-Bot
+    Reused and customized by Hanna Mangampo (github.com/manghann)
+"""
+import discord
 import asyncio
 import functools
 import itertools
 import math
 import random
-import os
-
-import discord
 import youtube_dl
+import datetime
+
 from async_timeout import timeout
 from discord.ext import commands
-import datetime
 
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ''
-
 
 class VoiceError(Exception):
     pass
@@ -133,7 +131,6 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
         return ', '.join(duration)
 
-
 class Song:
     __slots__ = ('source', 'requester')
 
@@ -171,7 +168,6 @@ class SongQueue(asyncio.Queue):
         random.shuffle(self._queue)
     def remove(self, index: int):
         del self._queue[index]
-
 
 class VoiceState:
     def __init__(self, client: commands.Bot, ctx: commands.Context):
@@ -310,18 +306,18 @@ class Music(commands.Cog):
         await ctx.voice_state.stop()
         del self.voice_states[ctx.guild.id]
 
-    @commands.command(name='now', aliases=['current', 'playing'])      # Displays the currently playing song.
+    @commands.command(name='now', aliases=['current', 'playing'])      # Displays the currently playing track.
     async def _now(self, ctx: commands.Context):
         await ctx.send(embed=ctx.voice_state.current.create_embed())
 
-    @commands.command(name='pause')       # Pauses the currently playing song. Has an option to resume. 
+    @commands.command(name='pause')       # Pauses the currently playing track.
     @commands.has_permissions(manage_guild=True)
     async def _pause(self, ctx: commands.Context):
         if ctx.voice_state.is_playing and ctx.voice_state.voice.is_playing():
             ctx.voice_state.voice.pause()
             await ctx.message.add_reaction('⏯')
 
-    @commands.command(name='resume')       # Resumes a currently paused song.
+    @commands.command(name='resume')       # Resumes a currently paused track.
     @commands.has_permissions(manage_guild=True)
     async def _resume(self, ctx: commands.Context):
         if ctx.voice_state.is_playing and ctx.voice_state.voice.is_paused():
@@ -343,8 +339,6 @@ class Music(commands.Cog):
             await ctx.send('⚠️ Not playing anything right now... ₍ᐢ ̥ ̞ ̥ᐢ₎?')
         else:
             ctx.voice_state.skip()
-
-
 
     @commands.command(name='queue')        # Shows the player's queue. You can optionally specify the page to show. Each page contains 10 elements.
     async def _queue(self, ctx: commands.Context, *, page: int = 1):
@@ -377,7 +371,7 @@ class Music(commands.Cog):
         ctx.voice_state.songs.shuffle()
         await ctx.message.add_reaction('✅')
 
-    @commands.command(name='remove')      # Removes a song from the queue at a given index.
+    @commands.command(name='remove')      # Removes a track from the queue at a given index.
     async def _remove(self, ctx: commands.Context, index: int):
         if len(ctx.voice_state.songs) == 0:
             await ctx.send('⚠️ **Empty queue!** Use `*play` to add a music.')
@@ -421,7 +415,7 @@ class Music(commands.Cog):
     @_play.before_invoke
     async def ensure_voice_state(self, ctx: commands.Context):
         if not ctx.author.voice or not ctx.author.voice.channel:
-            raise commands.CommandError(' User must connect to a voice channel.')
+            raise commands.CommandError('User must connect to a voice channel.')
 
         if ctx.voice_client:
             if ctx.voice_client.channel != ctx.author.voice.channel:

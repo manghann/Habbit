@@ -1,8 +1,6 @@
 import datetime
 import re
 from discord.ext import commands
-from datetime import timezone
-
 
 # POMODORO
 def get_expire_time(minutes: int) -> datetime.datetime:
@@ -16,7 +14,3 @@ def get_expire_time(minutes: int) -> datetime.datetime:
     expire_time = now + datetime.timedelta(minutes=minutes)
     return expire_time
 
-def sched():
-  sched = AsyncIOScheduler()
-  async def on_ready():
-    sched.start()  
