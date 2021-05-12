@@ -27,20 +27,22 @@ class Habbit_Tracker(commands.Cog):
     user_id = ctx.message.author.id
 
     if task == None:
-      await ctx.send(f"{ctx.author.mention}, **no task created**! Add one by typing `*add <task>`.")
+      await ctx.send(f"{ctx.author.mention}, **no task created**! Add one by typing `*add <description>`.")
  
     else:
       try:
         OrderedDict =  db.child("Users").child(user_id).child("Count").get().val()
         count = OrderedDict["Count"]
 
-        if count >= 11: 
+        if count > 10:
           await ctx.send(f"{ctx.author.mention}, chill~ You can only create **10** tasks at a time. Finish them first!")
-               
+          newcount = 1
+          db.child("Users").child(str(user_id)).child("Count").set(newcount)   
+                      
         else: 
           data={("Task "+str(count)):task}
           title="Task "+str(count)
-          await ctx.send(f"{ctx.author.mention}, **task created**! Add some more by typing `*add <task>`.")
+          await ctx.send(f"{ctx.author.mention}, **task created**! Add some more by typing `*add <description>`.")
           db.child("Users").child(user_id).child("Count").set({"Count":int(count)+1})
 
       except:
@@ -54,28 +56,28 @@ class Habbit_Tracker(commands.Cog):
       db.child("Users").child(str(user_id)).child(title).set(data)
 
   #---#
-  @commands.command()
-  async def edit(self, ctx,*, new_task = None, task = None):
-    global data, user_id, value, title
+  @commands.command() # WIP
+  async def edit(self, ctx, task = None, *,new_task = None):
     user_id = ctx.message.author.id    
 
-    if (task == None) or (new_task == None):
-      await ctx.send(f"{ctx.author.mention}, **no task created**! Add one by typing `*add <task>`.")
+    if  (task == None) or (new_task == None):
+      await ctx.send(f"{ctx.author.mention}, **no task edited**! Try `*edit <task_number> <new_description>`.")
+
     else:
-      print("test")
+      print("Task:", task, "New Desc:", new_task)
+      new_data={("Task "+str(task)):new_task}
+      db.child("Users").child(user_id).child("Task " + str(task)).set(new_data)      
+      await ctx.send(f"{ctx.author.mention}, **task edited**! Use `*tasks` to see your updated to-do list.")
 
   #---#
-
-
   @commands.command()
-  async def show(self, ctx):
+  async def mytasks(self, ctx):
     user_id = ctx.message.author.id
     entries = db.child("Users").child(user_id).get().val()
     OrderedDict = db.child("Users").child(user_id).child("Count").get().val()
-    count = OrderedDict["Count"]
-    #print(count)
-    task_list = []
+    #count = OrderedDict["Count"]
 
+    task_list =[]
     try:
       td = ''
       for entry in entries:
@@ -86,7 +88,7 @@ class Habbit_Tracker(commands.Cog):
           #show_tasks.add_field(name = entry, value = "•  " + OrderedDict[entry], inline = False)
           td += '**{}**: {}\n'.format(entry, OrderedDict[entry])
     
-      show_td = (discord.Embed(title = '**Habbit** ━ *To-do List*   🗒️', description = 'You can add a task to your list by typing `*add <task>`!\n\n{}'.format(td), color=discord.Color.orange())
+      show_td = (discord.Embed(title = '**Habbit** ━ *To-do List*   🗒️', description = f'You can add a task to your list by typing `*add <description>`!\n\n{td}', color=discord.Color.orange())
         .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
         .set_footer(icon_url=ctx.author.avatar_url, text = f'{ctx.author.display_name}'))
       show_td.timestamp = datetime.datetime.utcnow()   
@@ -94,7 +96,7 @@ class Habbit_Tracker(commands.Cog):
       await ctx.send(embed = show_td)
 
     except:
-        await ctx.send(f"{ctx.author.mention}, **no task avaiable**! You may create a new one using `.add <task>.`")
+        await ctx.send(f"{ctx.author.mention}, **no task avaiable**! You may create a new one using `.add <description>.`")
 
   @commands.command()
   async def finish(self, ctx,*, task = None):
@@ -102,7 +104,7 @@ class Habbit_Tracker(commands.Cog):
       OrderedDict=db.child("Users").child(user_id).child("Points").get().val()
       points = OrderedDict["Points"]
 
-      emsg = f"{ctx.author.mention}, **no task found**! Try `*finish <tasknumber>`."
+      emsg = f"{ctx.author.mention}, **no task found**! ***Usage:*** `*finish <task_number>`."
       
       if task == None:
         await ctx.send(emsg)   
@@ -122,7 +124,7 @@ class Habbit_Tracker(commands.Cog):
               GG = discord.Embed(title = 'Good job~  '+ username +', ', description = f' A hundred 🥕 points! Enjoy this carrot cake worth of 20 points!  🥮\n\n You can also see your current standing & see who\'s leading through `*leaderboard` or `*lead`!', color = discord.Color.orange())
               await ctx.send(embed = GG)
 
-              db.child("Users").child(user_id).child("Points").set({"Points": int(points) + 20}) # resets after reaching 100
+              db.child("Users").child(user_id).child("Points").set({"Points": int(points) + 20}) 
               OrderedDict=db.child("Users").child(user_id).child("Points").get().val()
               points = OrderedDict["Points"]
 
@@ -137,7 +139,7 @@ class Habbit_Tracker(commands.Cog):
             await ctx.send(embed=task_done)
 
           else:    
-            await ctx.send(f"{ctx.author.mention}, **task not found**! Try a different task number please.")  
+            await ctx.send(f"{ctx.author.mention}, **task not found**! ***Usage:*** `*finish <task_number>`")  
 
   # Temporarily replace quote function
   def noquote(s):
@@ -170,7 +172,6 @@ class Habbit_Tracker(commands.Cog):
 
     leading = ''
     for rank, i in enumerate(leaderboard[start:end], start=start):
-      #print (i['Name']," - ", i['Points'])
       leading += '**{}. {}** ━ `{} points`\n'.format(rank+1, i['Name'], i['Points'])
 
     leaderboard = (discord.Embed(title = '**Habbit** ━ *Leaderboard*   🏆', description = '**Habbit** is connected to different servers and \nhere are the standings so far: \n\n{}'.format(leading), color = discord.Colour.orange())
@@ -184,12 +185,6 @@ class Habbit_Tracker(commands.Cog):
     user_id = ctx.message.author.id
     OrderedDict = db.child("Users").child(user_id).child("Points").get().val()
     points = OrderedDict["Points"]
-    
-    #if username == None:
-      #no_user = (discord.Embed(title = '**Habbit** ━  *My Points*  🥕', description = "Please provide a user to get info on using `*mypoints @*username*`", colour = discord.Colour.orange())
-      #.set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png"))
-
-      #await ctx.send(embed=no_user)
 
     myPoints = (discord.Embed(title = '**Habbit** ━  *My Points*  🥕', description = "", colour = discord.Colour.orange())
       .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
@@ -213,7 +208,7 @@ class Habbit_Tracker(commands.Cog):
     OrderedDict=db.child("Users").child(user_id).child("Points").get().val()
     points = OrderedDict["Points"]
     print(points)
-    db.child("TD Users").child(user_id).child("Points").set({"Points" : int(points) + 3})
+    db.child("Users").child(user_id).child("Points").set({"Points" : int(points) + 3})
 
     daily = (discord.Embed(title = '**Habbit** ━  *Daily Points*  🥕', description = "Let's kick off your day~ Here is a gift... `3` 🥕!", colour = discord.Colour.orange())
     .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
@@ -229,7 +224,7 @@ class Habbit_Tracker(commands.Cog):
         .set_footer(icon_url=ctx.author.avatar_url, text = f'{ctx.author.display_name}')) 
         
         msg = 'This command is ratelimited, please try again after 12 hours!'.format(error.retry_after)              
-        daily_error.add_field(name = f'️Did you just try and get extra points? ₍ᐢ｡ܫ｡ᐢ₎', value = f'*Oopsie!* '+msg, inline = False)
+        daily_error.add_field(name = f'️Did you just try and get extra points? ₍ᐢ｡ܫ｡ᐢ₎', value = f'*Oops!* '+msg, inline = False)
         daily_error.timestamp = datetime.datetime.utcnow()   
         await ctx.send(embed = daily_error)
 
