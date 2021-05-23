@@ -216,7 +216,7 @@ class VoiceState:
                 # Try to get the next song within 3 minutes.
                 # If no song will be added to the queue in time, the player will disconnect due to performance reasons.
                 try:
-                    async with timeout(180):  # 3 minutes
+                    async with timeout(480):  # 3 minutes
                         self.current = await self.songs.get()
                 except asyncio.TimeoutError:
                     self.client.loop.create_task(self.stop())
