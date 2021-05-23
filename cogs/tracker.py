@@ -67,7 +67,7 @@ class Habbit_Tracker(commands.Cog):
       print("Task:", task, "New Desc:", new_task)
       new_data={("Task "+str(task)):new_task}
       db.child("Users").child(user_id).child("Task " + str(task)).set(new_data)      
-      await ctx.send(f"{ctx.author.mention}, **task edited**! Use `*tasks` to see your updated to-do list.")
+      await ctx.send(f"{ctx.author.mention}, **task edited**! Use `*mytasks` to see your updated to-do list.")
 
   #---#
   @commands.command()

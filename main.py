@@ -9,7 +9,7 @@ from keep_alive import keep_alive
 intents = discord.Intents().all()
 client = commands.Bot(command_prefix = '*', help_command=None) 
 client.remove_command("help")
-status = ["*help | build daily habits! 🌈", "*habbit - help | boost your productivity! 🌱", "*help | excel in your own pace! ⭐", "*habbit-help | time to work! 📚", "*help | reward yourself too! ☕"]
+status = ["*help | build daily habits! 🌈", "*habbit-help | boost your productivity! 🌱", "*help | excel in your own pace! ⭐", "*habbit-help | time to work! 📚", "*help | reward yourself too! ☕"]
 
 cogs = ['cogs.tracker','cogs.music','cogs.pomodoro','cogs.reminder'] # add more cogs here
 
@@ -44,7 +44,7 @@ async def help(ctx):
        .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
        .set_footer(icon_url=ctx.author.avatar_url, text=f"Help 1/5 | Habbit is created by Hanna Mangampo (manghann_#0747) ☁️"))  
 
-  page2 = (discord.Embed(title="📋 — To-do List", description=f"This tool features a to-do list that can handle up to ten tasks at once, as well as commands to *add*, *display*, and *complete* tasks on your personal list.\n\n\n**To-do Commands**\n`{prefix}mytasks` - Display your To-do List.\n`{prefix}add <description>` - Add a task to your list.\n`{prefix}edit <task_number> <new_description>` - Edit a task to your list.\n`{prefix}finish <task_number>` - Complete and remove a task from your list.\n\n`{prefix}mypoints` - Displays your current total points.\n`{prefix}daily` - Gives you free additional points every 12 hours.\n\nTo see who's leading and track your community member's points use `{prefix}leaderboard` or `{prefix}lead`.\n", colour=discord.Colour.orange())
+  page2 = (discord.Embed(title="📋 — To-do List", description=f"This tool features a to-do list that can handle up to ten tasks at once, as well as commands to *add*, *edit*, *view*, and *complete* tasks on your personal list.\n\n\n**To-do Commands**\n`{prefix}mytasks` - Display your To-do List.\n`{prefix}add <description>` - Add a task to your list.\n`{prefix}edit <task_number> <new_description>` - Edit a task on your list.\n`{prefix}finish <task_number>` - Complete and remove a task from your list.\n\n`{prefix}mypoints` - Displays your current total points.\n`{prefix}daily` - Gives you free additional points every 12 hours.\n\nTo see who's leading and track your community member's points use `{prefix}leaderboard` or `{prefix}lead`.\n", colour=discord.Colour.orange())
        .set_thumbnail(url = "https://i.imgur.com/Hy5KW52.png")
        .set_footer(icon_url=ctx.author.avatar_url, text="Help 2/5 | Reaction cooldown of 2 seconds •"))
   
